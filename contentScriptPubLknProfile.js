@@ -10,7 +10,7 @@ window.onload = async () => {
 
     let profileButton = createProfileButton(
         "profileButton", 
-        "Add to Matching", 
+        "Add to CRM", 
         "#70b5f9");
     
     injectButton(profileButton, profileActionsSelector);

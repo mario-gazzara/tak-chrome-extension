@@ -85,7 +85,7 @@ const getRecruiterData = async () => {
     const topCard = document.querySelector('div.topcard-requisitions__item-block'); 
     const project = topCard?.querySelector('a')?.innerHTML?.trim();
 
-    const firstRecruitingActivity = activities
+    const owner = activities
         .firstElementChild
         ?.firstElementChild
         ?.children[1]
@@ -98,7 +98,7 @@ const getRecruiterData = async () => {
         email,
         contactPhone,
         project,
-        firstRecruitingActivity
+        owner
     }
 }
 

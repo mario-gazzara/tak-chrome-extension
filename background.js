@@ -1,15 +1,47 @@
 const LINKEDIN_BASE_URL = 'https://www.linkedin.com';
 const LINKEDIN_API_URL = `${LINKEDIN_BASE_URL}/voyager/api`;
 
-const AIRTABLE_API_URL = "https://api.airtable.com/v0/appTZexPXpkZv2hLx";
-const AIRTABLE_API_KEY = "keyCfydEMoBPBkBij";
+const AIRTABLE_MATCHING_COPY_URL = "https://api.airtable.com/v0/appTZexPXpkZv2hLx";
+const AIRTABLE_CRM_URL = "https://api.airtable.com/v0/appgMU7xlREyqmWai";
+const AIRTABLE_META_API_URL = "https://api.airtable.com/v0/meta";
 
-const AIRTABLE_PROFILES_TABLE = `${AIRTABLE_API_URL}/Profils`;
+const AIRTABLE_PROFILES_TABLE = `${AIRTABLE_MATCHING_COPY_URL}/Profils`;
+const AIRTABLE_CRM_TABLE = `${AIRTABLE_CRM_URL}/CRM`;
+
+const AIRTABLE_API_KEY = "keyCfydEMoBPBkBij";
 
 const ACTIONS = {
     ADD_PUBLIC_PROFILE: 'add-public-profile',
     ADD_RECRUITER_PROFILE: 'add-recruiter-profile',
 };
+
+const COLLABORATORS = [
+    {
+        "id":"usrex364iAAHlN2qg",
+        "fullName":"Mario Gazzara",
+        "email":"gazzmarion@gmail.com"
+    },
+    {
+        "id":"usrfso27ekK3TEnQ6",
+        "fullName":"Mohamed",
+        "email":"medlbd@gmail.com"
+    },
+    {
+        "id":"usrlu9PbnyLXTJDuu",
+        "fullName":"Vivien Tranvaux",
+        "email":"vivien@tak.fr"
+    },
+    {
+        "id":"usrt3zDdH5sybIh5v",
+        "fullName":"Víctor Sancho",
+        "email":"vsancho@liddeo.com"
+    },
+    {
+        "id":"usrz9NhgejNM3KJ2c",
+        "fullName":"Andrei Manolache",
+        "email":"andreimanolache5@gmail.com"
+    }
+];
 
 chrome.tabs.onUpdated.addListener(function
     (tabId, changeInfo, tab) {
@@ -97,7 +129,7 @@ const airtableAPIRequest = async (endpoint, method, body = null) =>
         headers: { 
             'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', 
         },
         body: body && JSON.stringify(body)
     }));
@@ -123,14 +155,77 @@ const voyagerAPIRequest = async (endpoint, headers = {}) => {
 const getProfile = async (publicIdentifier = null, urn = null) =>
     await voyagerAPIRequest(`${LINKEDIN_API_URL}/identity/profiles/${publicIdentifier || urn}/profileView`);
 
+const getContactInfo = async (publicIdentifier) =>
+    await voyagerAPIRequest(`${LINKEDIN_API_URL}/identity/profiles/${publicIdentifier}/profileContactInfo`);
+
 const handleAddPublicProfile = async (profileId) => {
-    const profile = await getProfile(profileId);
+    const publicProfile = await getProfile(profileId);
+    const contactInfo = await getContactInfo(profileId);
     
-    console.log("profile: ", profile);
+    // console.log("profile: ", publicProfile);
+    // console.log("contact info: ", contactInfo);
 
-    // const profilesTable = await airtableAPIRequest(`${AIRTABLE_API_URL}/Profils`, 'GET');
+    const fullName = publicProfile.profile.firstName + " " + publicProfile.profile.lastName;
 
-    // console.log("Profiles Table: ", profilesTable);
+    const phoneNumbers = contactInfo?.phoneNumbers;
+    let phoneNuber = undefined;
+
+    if (phoneNumbers) {
+        phoneNuber = phoneNumbers.find(pn => {
+            if (pn.type === "MOBILE")
+                return true;
+        });       
+
+        if (!phoneNuber)
+            phoneNuber = phoneNuber[0];
+    }
+
+    const emailAddress = contactInfo?.emailAddress;
+    const profileUrl = `https://www.linkedin.com/in/${profileId}/`;
+
+    const experiences = publicProfile.positionView.elements;
+    let company = undefined;
+    let title = undefined;
+
+    if (experiences.length > 0) {
+        company = experiences[0].companyName;
+        title = experiences[0].title;
+    }
+
+    console.log({
+        fullName,
+        phoneNuber,
+        emailAddress,
+        profileUrl,
+        company,
+        title
+    });
+
+    const response = await airtableAPIRequest(
+        AIRTABLE_CRM_TABLE, 
+        'POST', 
+        {
+            "fields": {
+                "Nom": fullName,
+                "Téléphone": phoneNuber !== undefined ? phoneNuber : "",
+                "Email": emailAddress !== undefined ? emailAddress : "",
+                "Entreprise": company !== undefined ? company : "",
+                "Titre" : title != undefined ? title : "",
+                "URL Linkedin": profileUrl
+            },
+            "typecast": true
+        });
+
+    console.log(response);
+}
+
+const getCollaboratorByOwner = (owner) => {
+    var collaborator = COLLABORATORS.find((collaborator) => {
+        if(collaborator.fullName.startsWith(owner))
+            return true;
+    })
+
+    return collaborator;
 }
 
 const handleAddRecruiterProfile = async (recruiter) => {
@@ -142,7 +237,15 @@ const handleAddRecruiterProfile = async (recruiter) => {
         "profileUrl": `https://www.linkedin.com/in/${publicIdentifier}/` 
     };
     
+    const collaborator = getCollaboratorByOwner(recruiter.owner);
+
+    console.log("collaborator: ", collaborator);
     console.log("recruiter: ", recruiter);
+
+    if (!collaborator) {
+        console.error("Collaborator not found");
+        return;
+    }
 
     const response = await airtableAPIRequest(
         AIRTABLE_PROFILES_TABLE, 
@@ -157,8 +260,13 @@ const handleAddRecruiterProfile = async (recruiter) => {
                 "Linkedin URL": recruiter.profileUrl,
                 "Statut": "SMS à envoyer",
                 "Commentaires": "Add from Linkedin auto",
-                "Owner": recruiter.owner
-            }
+                "Owner": {
+                    "id": collaborator.id,
+                    "name": collaborator.fullName,
+                    "email": collaborator.email
+                }
+            },
+            "typecast": true
         });
 
     console.log(response);
