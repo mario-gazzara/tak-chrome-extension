@@ -15,36 +15,8 @@ const ACTIONS = {
     ADD_RECRUITER_PROFILE: 'add-recruiter-profile',
 };
 
-const COLLABORATORS = [
-    {
-        "id":"usrex364iAAHlN2qg",
-        "fullName":"Mario Gazzara",
-        "email":"gazzmarion@gmail.com"
-    },
-    {
-        "id":"usrfso27ekK3TEnQ6",
-        "fullName":"Mohamed",
-        "email":"medlbd@gmail.com"
-    },
-    {
-        "id":"usrlu9PbnyLXTJDuu",
-        "fullName":"Vivien Tranvaux",
-        "email":"vivien@tak.fr"
-    },
-    {
-        "id":"usrt3zDdH5sybIh5v",
-        "fullName":"Víctor Sancho",
-        "email":"vsancho@liddeo.com"
-    },
-    {
-        "id":"usrz9NhgejNM3KJ2c",
-        "fullName":"Andrei Manolache",
-        "email":"andreimanolache5@gmail.com"
-    }
-];
-
 chrome.tabs.onUpdated.addListener(function
-    (tabId, changeInfo, tab) {
+    (tabId, changeInfo) {
       if (changeInfo.url) {
         console.log("url: ", changeInfo.url);  
 
@@ -219,15 +191,6 @@ const handleAddPublicProfile = async (profileId) => {
     console.log(response);
 }
 
-const getCollaboratorByOwner = (owner) => {
-    var collaborator = COLLABORATORS.find((collaborator) => {
-        if(collaborator.fullName.startsWith(owner))
-            return true;
-    })
-
-    return collaborator;
-}
-
 const handleAddRecruiterProfile = async (recruiter) => {
     const recruiterPublicProfile = await getProfile(recruiter.profileUrn);
     const publicIdentifier = recruiterPublicProfile?.profile?.miniProfile?.publicIdentifier;
@@ -236,16 +199,8 @@ const handleAddRecruiterProfile = async (recruiter) => {
         ...recruiter, 
         "profileUrl": `https://www.linkedin.com/in/${publicIdentifier}/` 
     };
-    
-    const collaborator = getCollaboratorByOwner(recruiter.owner);
 
-    console.log("collaborator: ", collaborator);
     console.log("recruiter: ", recruiter);
-
-    if (!collaborator) {
-        console.error("Collaborator not found");
-        return;
-    }
 
     const response = await airtableAPIRequest(
         AIRTABLE_PROFILES_TABLE, 
@@ -260,11 +215,7 @@ const handleAddRecruiterProfile = async (recruiter) => {
                 "Linkedin URL": recruiter.profileUrl,
                 "Statut": "SMS à envoyer",
                 "Commentaires": "Add from Linkedin auto",
-                "Owner": {
-                    "id": collaborator.id,
-                    "name": collaborator.fullName,
-                    "email": collaborator.email
-                }
+                "Owner": recruiter.owner
             },
             "typecast": true
         });
