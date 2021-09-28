@@ -46,7 +46,7 @@ const createProfileButton = (id, text, color) => {
     profileButton.addEventListener('click', () => {
         chrome.runtime.sendMessage(
             {
-                action: "add-to-matching",
+                action: "add-public-profile",
                 data: {
                     profileId: getProfileIdentifier()
                 }
