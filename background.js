@@ -15,41 +15,54 @@ const ACTIONS = {
     ADD_RECRUITER_PROFILE: 'add-recruiter-profile',
 };
 
-chrome.tabs.onUpdated.addListener(function
-    (tabId, changeInfo) {
-      if (changeInfo.url) {
-        console.log("url: ", changeInfo.url);  
-
-        var patt = new RegExp("https:\/\/www.linkedin.com\/talent\/hire\/.+\/discover\/applicants\/profile\/.+");
-        var res = patt.test(changeInfo.url);
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo.url) {
+        console.log("url: ", changeInfo.url);
         
-        console.log("match: ", res);
-
-        if (res) {
-            chrome.tabs.sendMessage( tabId, {
-                message: 'scrape',
-                url: changeInfo.url
-            })
-        }
-      }
+        tryMatchRecruiterProfile(tabId, changeInfo.url);
+        tryMatchPublicProfile(tabId, changeInfo.url);
     }
-  );
+});
 
-chrome.runtime.onMessage.addListener(message => {
+chrome.runtime.onMessage.addListener(async (message) => {
    switch (message.action) {
        case ACTIONS.ADD_PUBLIC_PROFILE:
            console.log("Adding public profile...");
 
-           (async () => await handleAddPublicProfile(message.data.profileId))();       
+           await handleAddPublicProfile(message.data.profileId);       
            return true;
 
         case ACTIONS.ADD_RECRUITER_PROFILE:
            console.log("Adding recruiter profile...");
 
-           (async () => await handleAddRecruiterProfile(message.data))();       
+           await handleAddRecruiterProfile(message.data);       
            return true;
    }  
 });
+
+const tryMatchRecruiterProfile = (tabId, url) => {
+    var patt = new RegExp("https:\/\/www.linkedin.com\/talent\/hire\/.+\/discover\/applicants\/profile\/.+");
+    var res = patt.test(url);
+    
+    if (!res) return;
+
+    chrome.tabs.sendMessage(tabId, {
+        message: 'recruiter',
+        url
+    });
+}
+
+const tryMatchPublicProfile = (tabId, url) => {
+    if(!url.startsWith("https://www.linkedin.com/in/"))
+        return;
+
+    console.log("match public profile");
+
+    chrome.tabs.sendMessage(tabId, {
+        message: 'public-profile',
+        url
+    });
+}
 
 const getCsrfToken = (jsessionId) => {
     if (jsessionId === undefined || jsessionId.length == 0)
