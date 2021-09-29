@@ -15,6 +15,18 @@ const ACTIONS = {
     ADD_RECRUITER_PROFILE: 'add-recruiter-profile',
 };
 
+let owner = undefined;
+
+chrome.extension.onConnect.addListener(function(port) {
+    console.log("Connected...");
+
+    port.onMessage.addListener(function(request) {
+        owner = request.owner;
+
+        console.log("Owner: ", owner);
+    });
+});
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     if (changeInfo.url) {
         console.log("url: ", changeInfo.url);
@@ -196,7 +208,8 @@ const handleAddPublicProfile = async (profileId) => {
                 "Email": emailAddress !== undefined ? emailAddress : "",
                 "Entreprise": company !== undefined ? company : "",
                 "Titre" : title != undefined ? title : "",
-                "URL Linkedin": profileUrl
+                "URL Linkedin": profileUrl,
+                "Owner": owner
             },
             "typecast": true
         });
@@ -228,7 +241,7 @@ const handleAddRecruiterProfile = async (recruiter) => {
                 "Linkedin URL": recruiter.profileUrl,
                 "Statut": "SMS à envoyer",
                 "Commentaires": "Add from Linkedin auto",
-                "Owner": recruiter.owner
+                "Owner": owner
             },
             "typecast": true
         });

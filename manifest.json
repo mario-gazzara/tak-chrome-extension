@@ -22,5 +22,8 @@
       "matches": [ "https://www.linkedin.com/*" ],
       "js": [ "utils.js", "contentScriptLinkedin.js" ]
     }
-  ]
+  ],
+  "browser_action": {
+    "default_popup": "popup.html"
+  }
 }

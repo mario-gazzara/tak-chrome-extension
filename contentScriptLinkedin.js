@@ -110,10 +110,8 @@ const createRecruiterButton = (id, text, color, profileUrl) => {
 
 const getRecruiterData = async () => {
     const profileContainer = await waitForElement("div.profile__internal-container");
-    const activities = await waitForElement("div.recent-recruiting-activities__body");
 
     console.log(profileContainer);
-    console.log(activities);
 
     const fullName = profileContainer.querySelector("div.artdeco-entity-lockup__title")?.innerHTML?.trim();
     const email =  profileContainer.querySelector("[data-test-contact-email-address]")?.innerHTML?.trim();
@@ -122,19 +120,10 @@ const getRecruiterData = async () => {
     const topCard = document.querySelector('div.topcard-requisitions__item-block'); 
     const project = topCard?.querySelector('a')?.innerHTML?.trim();
 
-    const owner = activities
-        .firstElementChild
-        ?.firstElementChild
-        ?.children[1]
-        .firstElementChild
-        ?.querySelector('strong')
-        .innerHTML?.trim();
-
     return {
         fullName,
         email,
         contactPhone,
-        project,
-        owner
+        project
     }
 }
