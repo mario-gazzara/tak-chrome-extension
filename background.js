@@ -155,30 +155,60 @@ const getProfile = async (publicIdentifier = null, urn = null) =>
 const getContactInfo = async (publicIdentifier) =>
     await voyagerAPIRequest(`${LINKEDIN_API_URL}/identity/profiles/${publicIdentifier}/profileContactInfo`);
 
+const cleanPhoneNumber = (phoneNumber) => {
+    phoneNumber.number = phoneNumber.number.replace(/\+|,|\.|\(|\)|-|\s/g, '');
+    return phoneNumber;
+}
+    
+const getPhoneNumberStartsWith = (phoneNumbers, prefix) => 
+    phoneNumbers.find(phoneNuber => phoneNuber.number.startsWith(prefix));
+
+const getBestPhoneNumber = (phoneNumbers) => {
+    if (!phoneNumbers)
+        return undefined;
+
+    let phoneNuber = undefined;
+
+    const prefixes = [
+        '06',
+        '07',
+        '336',
+        '337',
+        '3306',
+        '3307',
+        '33',
+        '0033',
+    ]
+
+    for (const prefix of prefixes) {
+        phoneNuber = getPhoneNumberStartsWith(phoneNumbers, prefix);
+        
+        if (phoneNuber)
+            return cleanPhoneNumber(phoneNuber);
+    }
+
+    phoneNuber = phoneNumbers.find(pn => pn.type === "MOBILE");
+
+    if (phoneNuber)
+        return cleanPhoneNumber(phoneNuber)
+
+    if (!phoneNuber)
+        return phoneNuber[0];
+}
+
 const handleAddPublicProfile = async (profileId) => {
     const publicProfile = await getProfile(profileId);
     const contactInfo = await getContactInfo(profileId);
     
     // console.log("profile: ", publicProfile);
-    // console.log("contact info: ", contactInfo);
+    console.log("contact info: ", contactInfo);
 
     const fullName = publicProfile.profile.firstName + " " + publicProfile.profile.lastName;
-
-    const phoneNumbers = contactInfo?.phoneNumbers;
-    let phoneNuber = undefined;
-
-    if (phoneNumbers) {
-        phoneNuber = phoneNumbers.find(pn => {
-            if (pn.type === "MOBILE")
-                return true;
-        });       
-
-        if (!phoneNuber)
-            phoneNuber = phoneNuber[0];
-    }
-
+    const phoneNuber = getBestPhoneNumber(contactInfo?.phoneNumbers)?.number;
     const emailAddress = contactInfo?.emailAddress;
     const profileUrl = `https://www.linkedin.com/in/${profileId}/`;
+
+    console.log(phoneNuber);
 
     const experiences = publicProfile.positionView.elements;
     let company = undefined;
@@ -240,7 +270,7 @@ const handleAddRecruiterProfile = async (recruiter) => {
                 "Profil" : recruiter.project,
                 "Linkedin URL": recruiter.profileUrl,
                 "Statut": "SMS à envoyer",
-                "Commentaires": "Add from Linkedin auto",
+                "Commentaires": "Ajouté via l’extension chrome",
                 "Owner": owner
             },
             "typecast": true
