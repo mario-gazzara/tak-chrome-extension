@@ -161,6 +161,9 @@ const cleanPhoneNumber = (phoneNumber) => {
     phoneNumber.number = phoneNumber.number.replace(/\+|,|\.|\(|\)|-|\s/g, '');
     return phoneNumber;
 }
+
+const cleanRecruiterPhoneNumber = (phoneNumber) => 
+    phoneNumber?.replace(/\+|,|\.|\(|\)|-|\s/g, '');
     
 const getPhoneNumberStartsWith = (phoneNumbers, prefix) => 
     phoneNumbers.find(phoneNuber => phoneNuber.number.startsWith(prefix));
@@ -267,7 +270,7 @@ const handleAddRecruiterProfile = async (recruiter) => {
         {
             "fields": {
                 "Nom": recruiter.fullName,
-                "Téléphone": recruiter.contactPhone,
+                "Téléphone": cleanRecruiterPhoneNumber(recruiter.contactPhone),
                 "Email": recruiter.email,
                 "Acquisition": "Annonce Linkedin",
                 "Profil" : recruiter.project,
