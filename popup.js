@@ -27,9 +27,9 @@ var port = chrome.extension.connect({
     name: "Popup Communication"
 });
 
-chrome.storage.local.get(({ owner }) => { 
-    if (owner) {
-        document.getElementById('owner').value = owner;
+chrome.storage.local.get(({ oldOwner }) => { 
+    if (oldOwner) {
+        document.getElementById('owner').value = oldOwner;
     }
 })
 
@@ -45,7 +45,7 @@ form.addEventListener("submit", (event) => {
 	if (ownerValid) {
 		console.log("owner value: ", form.elements["owner"].value);
 
-        chrome.storage.local.set({ owner: form.elements["owner"].value });
+        chrome.storage.local.set({ oldOwner: form.elements["owner"].value });
 
         port.postMessage({ owner: form.elements["owner"].value });
 	}

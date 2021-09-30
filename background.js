@@ -17,19 +17,21 @@ const ACTIONS = {
 
 let owner = undefined;
 
+chrome.storage.local.get((items) => owner = items.oldOwner );
+
 chrome.extension.onConnect.addListener(function(port) {
     console.log("Connected...");
 
     port.onMessage.addListener(function(request) {
         owner = request.owner;
 
-        console.log("Owner: ", owner);
+        console.log("New owner: ", owner);
     });
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     if (changeInfo.url) {
-        console.log("url: ", changeInfo.url);
+        // console.log("url: ", changeInfo.url);
         
         tryMatchRecruiterProfile(tabId, changeInfo.url);
         tryMatchPublicProfile(tabId, changeInfo.url);
@@ -239,6 +241,7 @@ const handleAddPublicProfile = async (profileId) => {
                 "Entreprise": company !== undefined ? company : "",
                 "Titre" : title != undefined ? title : "",
                 "URL Linkedin": profileUrl,
+                "Commentaires": "Ajouté via l’extension chrome",
                 "Owner": owner
             },
             "typecast": true
