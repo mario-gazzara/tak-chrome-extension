@@ -1,18 +1,20 @@
 
-const waitForElement = (selector) => {
+const waitForElement = (targetNode, selector) => {
+    console.log(targetNode);
+
     return new Promise(resolve => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
+        if (targetNode.querySelector(selector)) {
+            return resolve(targetNode.querySelector(selector));
         }
 
         const observer = new MutationObserver(mutations => {
-            if (document.querySelector(selector)) {
-                resolve(document.querySelector(selector));
+            if (targetNode.querySelector(selector)) {
+                resolve(targetNode.querySelector(selector));
                 observer.disconnect();
             }
         });
 
-        observer.observe(document.body, {
+        observer.observe(targetNode, {
             childList: true,
             subtree: true
         });

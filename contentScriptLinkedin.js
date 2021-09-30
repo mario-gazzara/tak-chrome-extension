@@ -28,7 +28,7 @@ const handlePublicProfile = async () => {
     
     const profileActionsSelector = "div.pvs-profile-actions";
 
-    let profileActions = await waitForElement(profileActionsSelector);
+    let profileActions = await waitForElement(document, profileActionsSelector);
 
     console.log(profileActions);
 
@@ -48,17 +48,15 @@ const handleRecruiter = async (url, delay) => {
     console.log("Waiting for elements to be loaded...");
     
     const itemActionsSelector = "div.profile-item-actions";
-
-    await wait(delay);    
     
-    const profileContainer = await waitForElement("div.profile__internal-container");
+    const profileContainer = await waitForElement(document, "div.profile__internal-container");
+    const actions = await waitForElement(profileContainer, itemActionsSelector);
+
     const recruiterButton = createRecruiterButton('recruiterButton', 'Add to Matching', "#0073b1", url);
     
     console.log(profileContainer);
 
-    profileContainer
-        .querySelector(itemActionsSelector)
-        ?.appendChild(recruiterButton);
+    actions.appendChild(recruiterButton);
 }
 
 const createProfileButton = (id, text, color) => {
