@@ -107,7 +107,7 @@ const createRecruiterButton = (id, text, color, profileUrl) => {
 }
 
 const getRecruiterData = async () => {
-    const profileContainer = await waitForElement("div.profile__internal-container");
+    const profileContainer = await waitForElement(document, "div.profile__internal-container");
 
     console.log(profileContainer);
 

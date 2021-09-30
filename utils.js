@@ -1,7 +1,5 @@
 
 const waitForElement = (targetNode, selector) => {
-    console.log(targetNode);
-
     return new Promise(resolve => {
         if (targetNode.querySelector(selector)) {
             return resolve(targetNode.querySelector(selector));
