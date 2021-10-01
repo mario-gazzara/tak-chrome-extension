@@ -13,6 +13,7 @@
     min-width: 40%;
     height: 100%;
     padding: 60px 0px 60px 0px;
+    border: 1px solid #008CBA;
 }
 
 .modal-content {
@@ -31,14 +32,12 @@
 
 .field-form {
     display:flex; 
-    margin-bottom: 20px;
     padding: 10px;
     align-items: center;
     justify-content: flex-start;
 }
 
 .label-form {
-    all:unset;
     color: gray;
     text-align: center;
     width: 20%;
@@ -91,10 +90,12 @@
 
 .submit-btn {
     background-color: #008CBA;
+    border: none;
 }
 
 .cancel-btn {
     background-color: #B0B0B0;
+    border: none;
 }
 
 .header-modal {

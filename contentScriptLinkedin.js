@@ -86,6 +86,7 @@ const createProfileButton = (id, text, color) => {
 
 const createRecruiterButton = (id, text, color, profileUrl) => {
     var profileButton = document.createElement('button');
+
     profileButton.id = id;
     profileButton.className = 'profile-item-actions__item artdeco-button artdeco-button--2 artdeco-button--secondary ember-view';
     profileButton.style.color = "white";
@@ -98,14 +99,23 @@ const createRecruiterButton = (id, text, color, profileUrl) => {
     profileButton.addEventListener('click', () => {
         getRecruiterData()
             .then(recruiter => {
-                console.log("Recruiter: ", recruiter);
+                console.log("Incomplete recruiter: ", recruiter);
+                console.log("Sending message...");
 
                 chrome.runtime.sendMessage(
-                {
-                    action: "add-recruiter-profile",
-                    data: { ...recruiter, profileUrn: res[1].substring(0, res[1].length-1) }
-                });
-            })
+                    {
+                        action: "get-recruiter-profile",
+                        data: {
+                            ...recruiter, 
+                            profileUrn: res[1].substring(0, res[1].length-1) 
+                        }
+                    }, function (response) {
+                        console.log("Recruiter Response: ", response);
+        
+                        if(response)
+                            openRecruiterForm(response);
+                    });
+            });
     });
 
     return profileButton;
@@ -113,8 +123,6 @@ const createRecruiterButton = (id, text, color, profileUrl) => {
 
 const getRecruiterData = async () => {
     const profileContainer = await waitForElement(document, "div.profile__internal-container");
-
-    console.log(profileContainer);
 
     const fullName = profileContainer.querySelector("div.artdeco-entity-lockup__title")?.innerHTML?.trim();
     const email =  profileContainer.querySelector("[data-test-contact-email-address]")?.innerHTML?.trim();
@@ -132,7 +140,7 @@ const getRecruiterData = async () => {
 }
 
 const openProfileForm = (profile) => {    
-    let modal = document.querySelector('#profile-form');
+    let modal = document.querySelector('#profile-modal');
     let body = document.querySelector('body');
 
     if (!modal) {
@@ -140,16 +148,104 @@ const openProfileForm = (profile) => {
         body.insertBefore(FORM.createProfileForm(profile), body.firstChild);
 
         cancelButton = document.querySelector('#profile-cancel-button');
+        sendButton = document.querySelector('#profile-send-button');
 
-        wait(5000);
-        
-        if (cancelButton) {
-            cancelButton.addEventListener("click", () => FORM.closeMenu(document.querySelector('#profile-form'))); 
-        }
+        if (cancelButton) cancelButton.addEventListener("click", () => FORM.closeMenu(document.querySelector('#profile-modal'))); 
+
+        if (sendButton) sendButton.addEventListener("click", postProfileForm); 
             
     }
     else {
-        console.log("close form");
         FORM.closeMenu(modal);
     }
 }
+
+const openRecruiterForm = (recruiter) => {
+    let modal = document.querySelector('#recruiter-modal');
+    let body = document.querySelector('body');
+
+    if (!modal) {
+        body.insertBefore(FORM.createRecruiterForm(recruiter), body.firstChild);
+
+        cancelButton = document.querySelector('#recruiter-cancel-button');
+        sendButton = document.querySelector('#recruiter-send-button');
+
+        if (cancelButton) cancelButton.addEventListener("click", () => FORM.closeMenu(document.querySelector('#recruiter-modal'))); 
+
+        if (sendButton) sendButton.addEventListener("click", postRecruiterForm);
+    }
+    else {
+        FORM.closeMenu(modal);
+    }
+}
+
+const postProfileForm = () => {
+    const form = document.querySelector('#profile-form');
+
+    if (!form)
+        return;
+
+    const request = {
+        fullName: form.elements["fullname"].value,
+        phoneNumber: form.elements["phoneNumber"].value,
+        emailAddress: form.elements["email"].value,
+        profileUrl: form.elements["publicUrl"].value,
+        company: form.elements["company"].value,
+        title: form.elements["title"].value,
+        comments: form.elements["comments"].value,
+        owner: form.elements["owner"].value,
+        quiz: form.elements["quiz"].checked,
+        keyword: form.elements["keyword"].value,
+    }
+
+    console.log("Payload: ", request);
+
+    chrome.runtime.sendMessage(
+        {
+            action: "post-profile-to-airtable",
+            data: request
+        }, function (response) {            
+            handleResponseStatus(response);
+        });
+}
+
+const postRecruiterForm = () => {
+    const form = document.querySelector('#recruiter-form');
+
+    if (!form)
+        return;
+
+    console.log(form.elements);
+
+    const request = {
+        fullName: form.elements["fullname"].value,
+        phoneNumber: form.elements["contactPhone"].value,
+        emailAddress: form.elements["email"].value,
+        profileUrl: form.elements["publicUrl"].value,
+        project: form.elements["project"].value,
+        comments: form.elements["comments"].value,
+        owner: form.elements["owner"].value,
+        status: form.elements["status"].value,
+        quiz: form.elements["quiz"].checked,
+        keyword: form.elements["keyword"].value,
+    }
+
+    console.log("Payload: ", request);
+
+    chrome.runtime.sendMessage(
+        {
+            action: "post-recruiter-to-airtable",
+            data: request
+        }, function (response) {
+            handleResponseStatus(response);
+        });
+}
+
+const handleResponseStatus = (response) => {
+    if (response.status.isSucceeded) {
+        console.log("handle succeeded response");
+    }
+    else {
+        console.log("handle error response");
+    }
+} 

@@ -12,7 +12,9 @@ const AIRTABLE_API_KEY = "keyCfydEMoBPBkBij";
 
 const ACTIONS = {
     GET_PUBLIC_PROFILE: 'get-public-profile',
-    ADD_RECRUITER_PROFILE: 'add-recruiter-profile',
+    GET_RECRUITER_PROFILE: 'get-recruiter-profile',
+    POST_PROFILE_TO_AIRTABLE: 'post-profile-to-airtable',
+    POST_RECRUITER_TO_AIRTABLE: 'post-recruiter-to-airtable',
 };
 
 let owner = undefined;
@@ -53,12 +55,36 @@ chrome.runtime.onMessage.addListener((request, _sender, response) => {
         
            return true;
 
-        case ACTIONS.ADD_RECRUITER_PROFILE:
+        case ACTIONS.GET_RECRUITER_PROFILE:
             (async () => {
-                console.log("Adding recruiter profile...");
+                console.log("Getting recruiter profile...");
 
-                await handleAddRecruiterProfile(request.data);       
-            });
+                const recruiter = await handleGetRecruiterProfile(request.data);
+
+                response(recruiter);
+            })();
+           
+           return true;
+
+        case ACTIONS.POST_PROFILE_TO_AIRTABLE:
+            (async () => {
+                console.log("Posting profile to airtable...");
+
+                const airtableResponse = await postPublicProfile(request.data);
+
+                response(airtableResponse);
+            })();
+           
+           return true;
+
+        case ACTIONS.POST_RECRUITER_TO_AIRTABLE:
+            (async () => {
+                console.log("Posting recruiter to airtable...");
+
+                const airtableResponse = await postRecruiter(request.data);
+
+                response(airtableResponse);
+            })();
            
            return true;
    }  
@@ -122,7 +148,8 @@ const handleResponse = (response) => {
         return !response.ok ? 
             {
                 isSucceeded: response.ok,
-                statusCode: response.status
+                statusCode: response.status,
+                message: jsonResponse?.error?.message ?? ""
             } :
             {
                 isSucceeded: response.ok,
@@ -216,6 +243,7 @@ const handleGetPublicProfile = async (profileId, response) => {
     const contactInfo = await getContactInfo(profileId);
     
     // console.log("profile: ", publicProfile);
+
     console.log("contact info: ", contactInfo);
 
     const fullName = publicProfile.profile.firstName + " " + publicProfile.profile.lastName;
@@ -240,24 +268,34 @@ const handleGetPublicProfile = async (profileId, response) => {
         emailAddress: emailAddress ?? '',
         profileUrl: profileUrl ?? '',
         company: company ?? '',
-        title: title ?? ''
+        title: title ?? '',
+        "comments": "Ajouté via l’extension chrome",
+        "owner": owner
     };
 
     return payload;
 }
 
-const handleAddRecruiterProfile = async (recruiter) => {
+const handleGetRecruiterProfile = async (recruiter) => {
     const recruiterPublicProfile = await getProfile(recruiter.profileUrn);
     const publicIdentifier = recruiterPublicProfile?.profile?.miniProfile?.publicIdentifier;
 
     recruiter = { 
         ...recruiter, 
-        "profileUrl": `https://www.linkedin.com/in/${publicIdentifier}/` 
+        phoneNumber: cleanPhoneNumber(phoneNumber),
+        profileUrl: `https://www.linkedin.com/in/${publicIdentifier}/`,
+        status: "SMS à envoyer",
+        comments: "Ajouté via l’extension chrome",
+        owner
     };
 
-    console.log("recruiter: ", recruiter);
+    return recruiter;
+}
 
-    const response = await airtableAPIRequest(
+const postRecruiter = async (recruiter) => {
+    console.log("Recruiter to post: ", recruiter);
+
+    const airtableResponse = await airtableAPIRequest(
         AIRTABLE_PROFILES_TABLE, 
         'POST', 
         {
@@ -275,6 +313,33 @@ const handleAddRecruiterProfile = async (recruiter) => {
             "typecast": true
         });
 
-    console.log(response);
+    console.log(airtableResponse);
+
+    return airtableResponse;
+}
+
+const postPublicProfile = async (profile) => {
+    console.log("Profile to post: ", profile);   
+
+    const airtableResponse = await airtableAPIRequest(
+        AIRTABLE_CRM_TABLE, 
+        'POST', 
+        {
+            "fields": {
+                "Nsom": profile.fullName,
+                "Téléphone": profile.phoneNuber !== undefined ? cleanRecruiterPhoneNumber(profile.phoneNumber) : "",
+                "Email": profile.emailAddress,
+                "Entreprise": profile.company,
+                "Titre" : profile.title,
+                "URL Linkedin": profile.profileUrl,
+                "Commentaires": profile.comments,
+                "Owner": profile.owner
+            },
+            "typecast": true
+        });
+
+    console.log(airtableResponse);
+
+    return airtableResponse;
 }
 
