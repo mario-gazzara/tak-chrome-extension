@@ -11,7 +11,7 @@ const AIRTABLE_CRM_TABLE = `${AIRTABLE_CRM_URL}/CRM`;
 const AIRTABLE_API_KEY = "keyCfydEMoBPBkBij";
 
 const ACTIONS = {
-    ADD_PUBLIC_PROFILE: 'add-public-profile',
+    GET_PUBLIC_PROFILE: 'get-public-profile',
     ADD_RECRUITER_PROFILE: 'add-recruiter-profile',
 };
 
@@ -38,18 +38,28 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     }
 });
 
-chrome.runtime.onMessage.addListener(async (message) => {
-   switch (message.action) {
-       case ACTIONS.ADD_PUBLIC_PROFILE:
-           console.log("Adding public profile...");
+chrome.runtime.onMessage.addListener((request, _sender, response) => {
+   switch (request.action) {
+       case ACTIONS.GET_PUBLIC_PROFILE:
+           console.log("Getting public profile...");
 
-           await handleAddPublicProfile(message.data.profileId);       
+           (async () => {
+                const profile = await handleGetPublicProfile(request.data.profileId);       
+            
+                console.log("Profile: ", profile);
+                
+                response(profile);
+           })();
+        
            return true;
 
         case ACTIONS.ADD_RECRUITER_PROFILE:
-           console.log("Adding recruiter profile...");
+            (async () => {
+                console.log("Adding recruiter profile...");
 
-           await handleAddRecruiterProfile(message.data);       
+                await handleAddRecruiterProfile(request.data);       
+            });
+           
            return true;
    }  
 });
@@ -201,7 +211,7 @@ const getBestPhoneNumber = (phoneNumbers) => {
         return phoneNuber[0];
 }
 
-const handleAddPublicProfile = async (profileId) => {
+const handleGetPublicProfile = async (profileId, response) => {
     const publicProfile = await getProfile(profileId);
     const contactInfo = await getContactInfo(profileId);
     
@@ -209,11 +219,11 @@ const handleAddPublicProfile = async (profileId) => {
     console.log("contact info: ", contactInfo);
 
     const fullName = publicProfile.profile.firstName + " " + publicProfile.profile.lastName;
-    const phoneNuber = getBestPhoneNumber(contactInfo?.phoneNumbers)?.number;
+    const phoneNumber = getBestPhoneNumber(contactInfo?.phoneNumbers)?.number;
     const emailAddress = contactInfo?.emailAddress;
     const profileUrl = `https://www.linkedin.com/in/${profileId}/`;
 
-    console.log(phoneNuber);
+    // console.log(phoneNuber);
 
     const experiences = publicProfile.positionView.elements;
     let company = undefined;
@@ -224,33 +234,16 @@ const handleAddPublicProfile = async (profileId) => {
         title = experiences[0].title;
     }
 
-    console.log({
-        fullName,
-        phoneNuber,
-        emailAddress,
-        profileUrl,
-        company,
-        title
-    });
+    payload = {
+        fullName: fullName ?? '',
+        phoneNumber: phoneNumber ?? '',
+        emailAddress: emailAddress ?? '',
+        profileUrl: profileUrl ?? '',
+        company: company ?? '',
+        title: title ?? ''
+    };
 
-    const response = await airtableAPIRequest(
-        AIRTABLE_CRM_TABLE, 
-        'POST', 
-        {
-            "fields": {
-                "Nom": fullName,
-                "Téléphone": phoneNuber !== undefined ? phoneNuber : "",
-                "Email": emailAddress !== undefined ? emailAddress : "",
-                "Entreprise": company !== undefined ? company : "",
-                "Titre" : title != undefined ? title : "",
-                "URL Linkedin": profileUrl,
-                "Commentaires": "Ajouté via l’extension chrome",
-                "Owner": owner
-            },
-            "typecast": true
-        });
-
-    console.log(response);
+    return payload;
 }
 
 const handleAddRecruiterProfile = async (recruiter) => {

@@ -69,10 +69,15 @@ const createProfileButton = (id, text, color) => {
     profileButton.addEventListener('click', () => {
         chrome.runtime.sendMessage(
             {
-                action: "add-public-profile",
+                action: "get-public-profile",
                 data: {
                     profileId: getProfileIdentifier()
                 }
+            }, function (response) {
+                console.log("Profile Response: ", response);
+
+                if(response)
+                    openProfileForm(response);
             });
     });
 
@@ -123,5 +128,28 @@ const getRecruiterData = async () => {
         email,
         contactPhone,
         project
+    }
+}
+
+const openProfileForm = (profile) => {    
+    let modal = document.querySelector('#profile-form');
+    let body = document.querySelector('body');
+
+    if (!modal) {
+        console.log("open form");
+        body.insertBefore(FORM.createProfileForm(profile), body.firstChild);
+
+        cancelButton = document.querySelector('#profile-cancel-button');
+
+        wait(5000);
+        
+        if (cancelButton) {
+            cancelButton.addEventListener("click", () => FORM.closeMenu(document.querySelector('#profile-form'))); 
+        }
+            
+    }
+    else {
+        console.log("close form");
+        FORM.closeMenu(modal);
     }
 }
