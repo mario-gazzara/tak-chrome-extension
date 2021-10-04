@@ -118,3 +118,7 @@
     color: white;
     padding: 10px;
 }
+
+#errors > p {
+    color: red !important;
+}

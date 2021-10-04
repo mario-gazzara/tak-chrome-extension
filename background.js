@@ -71,7 +71,7 @@ chrome.runtime.onMessage.addListener((request, _sender, response) => {
                 console.log("Posting profile to airtable...");
 
                 const airtableResponse = await postPublicProfile(request.data);
-
+                
                 response(airtableResponse);
             })();
            
@@ -238,7 +238,7 @@ const getBestPhoneNumber = (phoneNumbers) => {
         return phoneNuber[0];
 }
 
-const handleGetPublicProfile = async (profileId, response) => {
+const handleGetPublicProfile = async (profileId) => {
     const publicProfile = await getProfile(profileId);
     const contactInfo = await getContactInfo(profileId);
     
@@ -282,7 +282,7 @@ const handleGetRecruiterProfile = async (recruiter) => {
 
     recruiter = { 
         ...recruiter, 
-        phoneNumber: cleanPhoneNumber(phoneNumber),
+        phoneNumber: cleanRecruiterPhoneNumber(recruiter.phoneNumber),
         profileUrl: `https://www.linkedin.com/in/${publicIdentifier}/`,
         status: "SMS à envoyer",
         comments: "Ajouté via l’extension chrome",
@@ -326,7 +326,7 @@ const postPublicProfile = async (profile) => {
         'POST', 
         {
             "fields": {
-                "Nsom": profile.fullName,
+                "Nom": profile.fullName,
                 "Téléphone": profile.phoneNuber !== undefined ? cleanRecruiterPhoneNumber(profile.phoneNumber) : "",
                 "Email": profile.emailAddress,
                 "Entreprise": profile.company,

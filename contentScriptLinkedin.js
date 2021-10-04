@@ -33,7 +33,7 @@ const handlePublicProfile = async () => {
     console.log(profileActions);
 
     if (document.querySelector("#profileButton"))
-        return;
+        document.querySelector("#profileButton").remove();
 
     let profileButton = createProfileButton(
         "profileButton", 
@@ -204,8 +204,10 @@ const postProfileForm = () => {
         {
             action: "post-profile-to-airtable",
             data: request
-        }, function (response) {            
-            handleResponseStatus(response);
+        }, function (response) {           
+            console.log("Response: ", response); 
+
+            handleResponseStatus(response, "profile");
         });
 }
 
@@ -237,15 +239,50 @@ const postRecruiterForm = () => {
             action: "post-recruiter-to-airtable",
             data: request
         }, function (response) {
-            handleResponseStatus(response);
+            handleResponseStatus(response, "recruiter");
         });
 }
 
-const handleResponseStatus = (response) => {
-    if (response.status.isSucceeded) {
+const handleResponseStatus = (response, contentType) => {
+    if (!response) {
+        console.log("Invalid Response");
+        return;
+    }
+
+    let button = undefined;
+    
+    if (contentType === "recruiter") {
+        button = document.querySelector('#recruiterButton');
+    }
+    else if (contentType === "profile") {
+        button = document.querySelector('#profileButton');
+    }
+
+    console.log("Button: ", button);
+
+
+    if (response.isSucceeded) {
         console.log("handle succeeded response");
+
+        if (button) {
+            button.style.backgroundColor = "#4BB543";
+
+            if (contentType === "recruiter") FORM.closeMenu(document.querySelector('#recruiter-modal'));
+            else FORM.closeMenu(document.querySelector('#profile-modal'));
+        }
     }
     else {
         console.log("handle error response");
+
+        if (button) {
+            button.style.backgroundColor = "#f44336";
+            errorsContainer = document.querySelector("#errors");
+
+            console.log("Errors Container: ", errorsContainer);
+
+            if (errorsContainer) {
+                errorsContainer.innerHTML = `<p>${response.message}</p>`;
+            }
+        }
     }
 } 
