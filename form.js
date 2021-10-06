@@ -34,20 +34,6 @@ class FORM {
                                 <input type="text" id="publicUrl" name="publicUrl" value="${profile.profileUrl}" class="input-form"/>
                             </div>
                         </div>                    
-
-                        <div class="form-group">
-                            <label>Organization</label>
-
-                            <div class="field-form">
-                                <label for="company" class="label-form">Company:</label>
-                                <input type="text" id="company" name="company" value="${profile.company}" class="input-form"/>
-                            </div>
-
-                            <div class="field-form">
-                                <label for="title" class="label-form">Title:</label>
-                                <input type="text" id="title" name="title" value="${profile.title}" class="input-form"/>
-                            </div>
-                        </div>
                         
                         <div class="form-group">
                             <label>Additional Info</label>

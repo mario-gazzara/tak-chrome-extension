@@ -37,7 +37,7 @@ const handlePublicProfile = async () => {
 
     let profileButton = createProfileButton(
         "profileButton", 
-        "Add to CRM", 
+        "Add to Matching", 
         "#70b5f9");
     
     profileActions.appendChild(profileButton);
@@ -190,8 +190,6 @@ const postProfileForm = () => {
         phoneNumber: form.elements["phoneNumber"].value,
         emailAddress: form.elements["email"].value,
         profileUrl: form.elements["publicUrl"].value,
-        company: form.elements["company"].value,
-        title: form.elements["title"].value,
         comments: form.elements["comments"].value,
         owner: form.elements["owner"].value,
         quiz: form.elements["quiz"].checked,

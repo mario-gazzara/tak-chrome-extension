@@ -24,10 +24,11 @@
 }
 
 .my-form {
+    font-size: small !important;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    justify-content: space-around;
+    /* height: 100%; */
+    /* justify-content: space-around; */
     height: 100%;
 }
 
@@ -49,6 +50,7 @@
     border: 1px solid #bfb5b5 !important; 
     padding-top: 15px;
     padding: 10px;
+    margin-bottom: 20px;
 }
 
 .form-group > label {
