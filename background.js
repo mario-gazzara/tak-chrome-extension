@@ -330,7 +330,7 @@ const postPublicProfile = async (profile) => {
                 "Nom": profile.fullName,
                 "Téléphone": profile.phoneNumber !== undefined ? profile.phoneNumber : "",
                 "Email": profile.emailAddress,
-                "URL Linkedin": profile.profileUrl,
+                "Linkedin URL": profile.profileUrl,
                 "Commentaires": profile.comments,
                 "Owner": profile.owner,
                 "Mots Clés": profile.keyword === "" ? null : profile.keyword,
