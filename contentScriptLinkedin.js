@@ -196,6 +196,7 @@ const postProfileForm = () => {
         owner: form.elements["owner"].value,
         quiz: form.elements["quiz"].checked,
         keyword: form.elements["keyword"].value,
+        status: form.elements["status"].value
     }
 
     console.log("Payload: ", request);

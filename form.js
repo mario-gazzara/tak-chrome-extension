@@ -53,6 +53,11 @@ class FORM {
                             <label>Additional Info</label>
 
                             <div class="field-form">
+                                <label for="status" class="label-form">Status:</label>
+                                <input type="text" id="status" name="status" value="${profile.status}" class="input-form"/>
+                            </div>
+
+                            <div class="field-form">
                                 <label for="comments" class="label-form">Comments:</label>
                                 <input type="text" id="comments" name="comments" value="${profile.comments}" class="input-form"/>
                             </div>

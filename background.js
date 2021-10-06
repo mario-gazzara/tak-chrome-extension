@@ -1,14 +1,10 @@
 const LINKEDIN_BASE_URL = 'https://www.linkedin.com';
 const LINKEDIN_API_URL = `${LINKEDIN_BASE_URL}/voyager/api`;
 
-const AIRTABLE_MATCHING_COPY_URL = "https://api.airtable.com/v0/appTZexPXpkZv2hLx";
-const AIRTABLE_CRM_URL = "https://api.airtable.com/v0/appgMU7xlREyqmWai";
-const AIRTABLE_META_API_URL = "https://api.airtable.com/v0/meta";
-
-const AIRTABLE_PROFILES_TABLE = `${AIRTABLE_MATCHING_COPY_URL}/Profils`;
-const AIRTABLE_CRM_TABLE = `${AIRTABLE_CRM_URL}/CRM`;
-
 const AIRTABLE_API_KEY = "keyCfydEMoBPBkBij";
+const AIRTABLE_BASE_URL = "https://api.airtable.com/v0";
+const AIRTABLE_MATCHING_URL = `${AIRTABLE_BASE_URL}/apptAEasYrcjwDKZC`;
+const AIRTABLE_PROFILES_TABLE = `${AIRTABLE_MATCHING_URL}/Profils`;
 
 const ACTIONS = {
     GET_PUBLIC_PROFILE: 'get-public-profile',
@@ -269,6 +265,7 @@ const handleGetPublicProfile = async (profileId) => {
         profileUrl: profileUrl ?? '',
         company: company ?? '',
         title: title ?? '',
+        status: "SMS à envoyer",
         "comments": "Ajouté via l’extension chrome",
         "owner": owner
     };
@@ -280,9 +277,11 @@ const handleGetRecruiterProfile = async (recruiter) => {
     const recruiterPublicProfile = await getProfile(recruiter.profileUrn);
     const publicIdentifier = recruiterPublicProfile?.profile?.miniProfile?.publicIdentifier;
 
+    console.log("Phone Number: ", cleanRecruiterPhoneNumber(recruiter.contactPhone));
+    
     recruiter = { 
         ...recruiter, 
-        phoneNumber: cleanRecruiterPhoneNumber(recruiter.phoneNumber),
+        contactPhone: cleanRecruiterPhoneNumber(recruiter.contactPhone),
         profileUrl: `https://www.linkedin.com/in/${publicIdentifier}/`,
         status: "SMS à envoyer",
         comments: "Ajouté via l’extension chrome",
@@ -301,14 +300,16 @@ const postRecruiter = async (recruiter) => {
         {
             "fields": {
                 "Nom": recruiter.fullName,
-                "Téléphone": cleanRecruiterPhoneNumber(recruiter.contactPhone),
-                "Email": recruiter.email,
+                "Téléphone": recruiter.phoneNumber,
+                "Email": recruiter.emailAddress,
                 "Acquisition": "Annonce Linkedin",
                 "Profil" : recruiter.project,
                 "Linkedin URL": recruiter.profileUrl,
-                "Statut": "SMS à envoyer",
-                "Commentaires": "Ajouté via l’extension chrome",
-                "Owner": owner
+                "Statut": recruiter.status,
+                "Commentaires": recruiter.comments,
+                "Owner": owner,
+                "Mots Clés": recruiter.keyword === "" ? null : recruiter.keyword,
+                "Repêché par quiz": recruiter.quiz
             },
             "typecast": true
         });
@@ -320,20 +321,23 @@ const postRecruiter = async (recruiter) => {
 
 const postPublicProfile = async (profile) => {
     console.log("Profile to post: ", profile);   
-
+    
     const airtableResponse = await airtableAPIRequest(
-        AIRTABLE_CRM_TABLE, 
+        AIRTABLE_PROFILES_TABLE, 
         'POST', 
         {
             "fields": {
                 "Nom": profile.fullName,
-                "Téléphone": profile.phoneNuber !== undefined ? cleanRecruiterPhoneNumber(profile.phoneNumber) : "",
+                "Téléphone": profile.phoneNumber !== undefined ? profile.phoneNumber : "",
                 "Email": profile.emailAddress,
                 "Entreprise": profile.company,
                 "Titre" : profile.title,
                 "URL Linkedin": profile.profileUrl,
                 "Commentaires": profile.comments,
-                "Owner": profile.owner
+                "Owner": profile.owner,
+                "Mots Clés": profile.keyword === "" ? null : profile.keyword,
+                "Statut": profile.status,
+                "Repêché par quiz": profile.quiz
             },
             "typecast": true
         });
