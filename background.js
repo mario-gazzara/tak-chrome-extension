@@ -1,9 +1,10 @@
 const LINKEDIN_BASE_URL = 'https://www.linkedin.com';
 const LINKEDIN_API_URL = `${LINKEDIN_BASE_URL}/voyager/api`;
 
-const AIRTABLE_API_KEY = "keyCfydEMoBPBkBij";
+const APP_ID = null;
+const AIRTABLE_API_KEY = null;
 const AIRTABLE_BASE_URL = "https://api.airtable.com/v0";
-const AIRTABLE_MATCHING_URL = `${AIRTABLE_BASE_URL}/apptAEasYrcjwDKZC`;
+const AIRTABLE_MATCHING_URL = `${AIRTABLE_BASE_URL}/${APP_ID}`;
 const AIRTABLE_PROFILES_TABLE = `${AIRTABLE_MATCHING_URL}/Profils`;
 
 const ACTIONS = {
