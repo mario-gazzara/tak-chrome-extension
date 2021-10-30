@@ -7,7 +7,7 @@ window.onload = async () => {
     }
 
     else if (recruiterUrlMatches(window.location.href)) {
-        await handleRecruiter(window.location.href, 8000);
+        await handleRecruiter(window.location.href);
     }
 
     chrome.runtime.onMessage.addListener(async (request) => {
@@ -15,7 +15,7 @@ window.onload = async () => {
             await handlePublicProfile();
         }
         else if (request.message === 'recruiter') {
-            await handleRecruiter(request.url, 3000);
+            await handleRecruiter(request.url);
         }
     
         return true;
@@ -43,7 +43,7 @@ const handlePublicProfile = async () => {
     profileActions.appendChild(profileButton);
 }
 
-const handleRecruiter = async (url, delay) => {
+const handleRecruiter = async (url) => {
     console.log("New recruiter matched!");
     console.log("Waiting for elements to be loaded...");
     
@@ -93,7 +93,7 @@ const createRecruiterButton = (id, text, color, profileUrl) => {
     profileButton.style.backgroundColor = color;
     profileButton.innerHTML = text;
 
-    var patt = new RegExp("profile\/(.+)\?project");
+    var patt = new RegExp("profile\/(.+)");
     var res = patt.exec(profileUrl);
     
     profileButton.addEventListener('click', () => {
@@ -196,7 +196,8 @@ const postProfileForm = () => {
         owner: form.elements["owner"].value,
         quiz: form.elements["quiz"].checked,
         keyword: form.elements["keyword"].value,
-        status: form.elements["status"].value
+        status: form.elements["status"].value,
+        acquisition: form.elements["acquisition"].value
     }
 
     console.log("Payload: ", request);

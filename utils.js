@@ -43,12 +43,17 @@ const getProfileIdentifier = () => {
     return paths.length > 1 ? paths[paths.length -2] : '';
 }
 
-
 const recruiterUrlMatches = (url) => {
     var patt = new RegExp("https:\/\/www.linkedin.com\/talent\/hire\/.+\/discover\/applicants\/profile\/.+");
+    var patt1 = new RegExp("https:\/\/www.linkedin.com\/talent\/profile\/.+");
+
     var res = patt.test(url);
+    var res1 = patt1.test(url);
     
-    if (!res) return false;
+    console.log("search: ", res1); 
+    console.log("from recruiter: ", res);
+
+    if (!res && !res1) return false;
 
     return true;
 }

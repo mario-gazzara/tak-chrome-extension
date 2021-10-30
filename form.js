@@ -66,6 +66,27 @@ class FORM {
                                 <label for="owner" class="label-form">Owner:</label>
                                 <input type="text" id="owner" name="owner" value="${profile.owner}" class="input-form"/>
                             </div>
+                            
+                            <div class="field-form">
+                                <label for="project" class="label-form">Project:</label>
+                                <select name="project">
+                                    <option value="PO">PO</option>
+                                    <option value="FI">FI</option>
+                                    <option value="Cadrage besoin dataviz">Cadrage besoin dataviz</option>
+                                    <option value="PO remplacement Hamza">PO remplacement Hamza</option>
+                                </select>
+                            </div>
+
+                            <div class="field-form">
+                                <label for="acquisition" class="label-form">Acquisition:</label>
+                                <select name="acquisition">
+                                    <option value="Approche directe">Approche directe</option>
+                                    <option value="Annonce Linkedin">Annonce Linkedin</option>
+                                    <option value="Cooptation">Cooptation</option>
+                                    <option value="Cabinet">Cabinet</option>
+                                    <option value="Freelance-info">Freelance-info</option>
+                                </select>
+                            </div>
 
                             <div class="field-form">
                                 <label class="label-form" for="quiz">Drafted by quiz:</label>

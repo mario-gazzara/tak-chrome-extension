@@ -88,9 +88,15 @@ chrome.runtime.onMessage.addListener((request, _sender, response) => {
 
 const tryMatchRecruiterProfile = (tabId, url) => {
     var patt = new RegExp("https:\/\/www.linkedin.com\/talent\/hire\/.+\/discover\/applicants\/profile\/.+");
+    var patt1 = new RegExp("https:\/\/www.linkedin.com\/talent\/profile\/.+");
+
     var res = patt.test(url);
-    
-    if (!res) return;
+    var res1 = patt1.test(url);
+
+    console.log("search: ", res1); 
+    console.log("from recruiter: ", res);
+
+    if (!res && !res1) return;
 
     chrome.tabs.sendMessage(tabId, {
         message: 'recruiter',
@@ -336,8 +342,10 @@ const postPublicProfile = async (profile) => {
                 "Commentaires": profile.comments,
                 "Owner": profile.owner,
                 "Mots Clés": profile.keyword === "" ? null : profile.keyword,
+                "Acquisition": profile.acquisition,
+                "Projet": profile.project,
                 "Statut": profile.status,
-                "Repêché par quiz": profile.quiz
+                "Repêché par quiz": profile.quiz,
             },
             "typecast": true
         });
