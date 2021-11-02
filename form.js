@@ -7,9 +7,8 @@ class FORM {
                 <div class="header-modal">
                     <h2>Airtable Contact Profile</h2>
                 </div>
+                <div id="errors"></div>
                 <div class="modal-content">
-                    <div id="errors"></div>
-
                     <form method="post" class="my-form" id="profile-form">
                         <div class="form-group">
                             <label>Contact Info</label>
@@ -118,8 +117,8 @@ class FORM {
                 <div class="header-modal">
                     <h2 style="color: white !important;">Airtable Recruiter Profile</h2>
                 </div>
+                <div id="errors"></div>
                 <div class="modal-content">
-                    <div id="errors"></div>
                     <form method="post" class="my-form" id="recruiter-form">
                         <div class="form-group">
                             <label>Recruiter Contact Info</label>
