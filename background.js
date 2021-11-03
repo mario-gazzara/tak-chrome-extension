@@ -14,6 +14,8 @@ const ACTIONS = {
 };
 
 let owner = undefined;
+let projects = [];
+let acquisitions = [];
 
 chrome.storage.local.get((items) => owner = items.oldOwner );
 
@@ -22,8 +24,12 @@ chrome.extension.onConnect.addListener(function(port) {
 
     port.onMessage.addListener(function(request) {
         owner = request.owner;
+        projects = request.projects;
+        acquisitions = request.acquisitions;
 
         console.log("New owner: ", owner);
+        console.log("New projects: ", projects);
+        console.log("New acquisitions: ", acquisitions);
     });
 });
 
@@ -272,8 +278,10 @@ const handleGetPublicProfile = async (profileId) => {
         company: company ?? '',
         title: title ?? '',
         status: "SMS à envoyer",
-        "comments": "Ajouté via l’extension chrome",
-        "owner": owner
+        comments: "Ajouté via l’extension chrome",
+        owner,
+        projects,
+        acquisitions
     };
 
     return payload;
