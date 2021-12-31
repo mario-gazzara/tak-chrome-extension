@@ -37,13 +37,13 @@ chrome.storage.local.get(({
 
 	const projectsList = document.getElementById('projects');
 
-	oldProjects?.forEach(p => {
+	oldProjects.forEach(p => {
 		projectsList.innerHTML += `<li>${p}</li>`;
 	})
 
 	const acquisitionsList = document.getElementById('acquisitions');
 
-	oldAcquisitions?.forEach(a => {
+	oldAcquisitions.forEach(a => {
 		acquisitionsList.innerHTML += `<li>${a}</li>`;
 	})
 })
@@ -122,7 +122,7 @@ const clearAcquisition = document.getElementById('clear-acquisition');
 
 clearProject.addEventListener("click", () => {
 	const projectsList = document.getElementById('projects');
-	projectsList.innerHTML = "";
+	projectsList .innerHTML = "";
 });
 
 clearAcquisition.addEventListener("click", () => {

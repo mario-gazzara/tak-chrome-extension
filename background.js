@@ -288,14 +288,8 @@ const handleGetPublicProfile = async (profileId) => {
 }
 
 const handleGetRecruiterProfile = async (recruiter) => {
-    console.log("Recruiter profile URN: ", recruiter.profileUrn);
-    
     const recruiterPublicProfile = await getProfile(recruiter.profileUrn);
-
-    console.log({ recruiterPublicProfile });
-    const publicIdentifier = recruiterPublicProfile?.miniProfile?.publicIdentifier;
-
-    console.log("Recruiter public identifier: ", publicIdentifier);
+    const publicIdentifier = recruiterPublicProfile?.profile?.miniProfile?.publicIdentifier;
 
     console.log("Phone Number: ", cleanRecruiterPhoneNumber(recruiter.contactPhone));
     

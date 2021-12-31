@@ -36,9 +36,9 @@ const handlePublicProfile = async () => {
         document.querySelector("#profileButton").remove();
 
     let profileButton = createProfileButton(
-        "profileButton", 
-        "Add to CRM", 
-        "#70b5f9");
+        "recruiterButton", 
+        "Add to Matching", 
+        "#0073b1");
     
     profileActions.appendChild(profileButton);
 }
