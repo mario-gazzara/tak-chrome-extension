@@ -1,10 +1,9 @@
 const LINKEDIN_BASE_URL = 'https://www.linkedin.com';
 const LINKEDIN_API_URL = `${LINKEDIN_BASE_URL}/voyager/api`;
 
-const APP_ID = null;
-const AIRTABLE_API_KEY = null;
+const AIRTABLE_API_KEY = "keyCfydEMoBPBkBij";
 const AIRTABLE_BASE_URL = "https://api.airtable.com/v0";
-const AIRTABLE_MATCHING_URL = `${AIRTABLE_BASE_URL}/${APP_ID}`;
+const AIRTABLE_MATCHING_URL = `${AIRTABLE_BASE_URL}/apptAEasYrcjwDKZC`;
 const AIRTABLE_PROFILES_TABLE = `${AIRTABLE_MATCHING_URL}/Profils`;
 
 const ACTIONS = {
@@ -15,6 +14,8 @@ const ACTIONS = {
 };
 
 let owner = undefined;
+let projects = [];
+let acquisitions = [];
 
 chrome.storage.local.get((items) => owner = items.oldOwner );
 
@@ -23,8 +24,12 @@ chrome.extension.onConnect.addListener(function(port) {
 
     port.onMessage.addListener(function(request) {
         owner = request.owner;
+        projects = request.projects;
+        acquisitions = request.acquisitions;
 
         console.log("New owner: ", owner);
+        console.log("New projects: ", projects);
+        console.log("New acquisitions: ", acquisitions);
     });
 });
 
@@ -89,9 +94,15 @@ chrome.runtime.onMessage.addListener((request, _sender, response) => {
 
 const tryMatchRecruiterProfile = (tabId, url) => {
     var patt = new RegExp("https:\/\/www.linkedin.com\/talent\/hire\/.+\/discover\/applicants\/profile\/.+");
+    var patt1 = new RegExp("https:\/\/www.linkedin.com\/talent\/profile\/.+");
+
     var res = patt.test(url);
-    
-    if (!res) return;
+    var res1 = patt1.test(url);
+
+    console.log("search: ", res1); 
+    console.log("from recruiter: ", res);
+
+    if (!res && !res1) return;
 
     chrome.tabs.sendMessage(tabId, {
         message: 'recruiter',
@@ -267,8 +278,10 @@ const handleGetPublicProfile = async (profileId) => {
         company: company ?? '',
         title: title ?? '',
         status: "SMS à envoyer",
-        "comments": "Ajouté via l’extension chrome",
-        "owner": owner
+        comments: "Ajouté via l’extension chrome",
+        owner,
+        projects,
+        acquisitions
     };
 
     return payload;
@@ -303,7 +316,7 @@ const postRecruiter = async (recruiter) => {
                 "Nom": recruiter.fullName,
                 "Téléphone": recruiter.phoneNumber,
                 "Email": recruiter.emailAddress,
-                "Acquisition": "Approche directe",
+                "Acquisition": "Annonce Linkedin",
                 "Profil" : recruiter.project,
                 "Linkedin URL": recruiter.profileUrl,
                 "Statut": recruiter.status,
@@ -331,12 +344,16 @@ const postPublicProfile = async (profile) => {
                 "Nom": profile.fullName,
                 "Téléphone": profile.phoneNumber !== undefined ? profile.phoneNumber : "",
                 "Email": profile.emailAddress,
-                "Linkedin URL": profile.profileUrl,
+                "Entreprise": profile.company,
+                "Titre" : profile.title,
+                "URL Linkedin": profile.profileUrl,
                 "Commentaires": profile.comments,
                 "Owner": profile.owner,
                 "Mots Clés": profile.keyword === "" ? null : profile.keyword,
+                "Acquisition": profile.acquisition,
+                "Projet": profile.project,
                 "Statut": profile.status,
-                "Repêché par quiz": profile.quiz
+                "Repêché par quiz": profile.quiz,
             },
             "typecast": true
         });

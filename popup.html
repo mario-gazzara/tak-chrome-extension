@@ -13,8 +13,46 @@
 					<input type="text" id="owner" name="owner" placeholder="Please enter owner" />
 					<small></small>
 				</div>
+				
 				<div class="field">
-					<button type="submit" class="full">Send</button>
+					<label for="owner">Profils :</label>
+					<input type="text" id="project" name="project" placeholder="Please enter project" />
+					<small></small>
+				</div>
+
+				<div class="field">
+					<div style="display: flex;">
+						<button style="margin-right: 0.4rem;" id="project-button" class="full">Ajouter</button>
+						<button style="background-color: #dc3545; border: #dc3545;" id="clear-project" class="full">Clear</button>
+					</div>	
+				</div>
+
+				<div class="field">
+					<label for="owner">Acquisition :</label>
+					<input type="text" id="acquisition" name="acquisition" placeholder="Please enter acquisition" />
+					<small></small>
+				</div>
+
+				<div class="field">
+					<div style="display: flex;">
+						<button style="margin-right: 0.4rem;" id="acquisition-button" class="full">Ajouter</button>
+						<button style="background-color: #dc3545; border: #dc3545;" id="clear-acquisition" class="full">Clear</button>
+					</div>					
+				</div>
+
+				<div class="field">
+					<label>Profils :</label>
+					<ul id="projects"></ul>
+				</div>
+
+				<div class="field">
+					<label>Acquisitions :</label>
+					<ul id="acquisitions"> </ul>
+				</div>
+
+				<br>
+				<div class="field">
+					<button type="submit" class="full">Envoyer</button>
 				</div>
 			</form>
 		</div>
