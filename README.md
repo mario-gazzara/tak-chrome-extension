@@ -1,7 +1,4 @@
 <h1> TAK Chrome Extension</h1>
 
 
-
-It is a chrome extension, created to automate tasks where the actors are: the linkedin recruiter and airtable platforms. 
-This extension allows you to automatically collect data from linkedin public profiles and recruiters, allow them to be modified through a form and automatically 
-insert them into an airtable base through the integration of the airtable api.
+This Chrome extension is designed to streamline and automate tasks involving the LinkedIn Recruiter and Airtable platforms. It simplifies the process of collecting data from LinkedIn public profiles and recruiters, allowing for easy modification via a form interface, and seamlessly integrates with the Airtable API to automatically insert this data into an Airtable base.
